@@ -2,6 +2,7 @@
 RESTART_INSTRUCTIONS="Dropping to shell. To rebuild, swipe from the top of your screen, touch the arrow on the right side of your Termux Notificiation, touch "Exit", then relaunch this app."
 if ! ls /storage/emulated/0 >/dev/null 2>&1
 then
+    yes | pkg install termux-am
 	yes | termux-setup-storage
 fi
 cat <<EOF
@@ -18,6 +19,7 @@ then
 	echo && echo $RESTART_INSTRUCTIONS
 	exit 0
 fi
+yes | termux-wake-lock
 echo 'Autodetecting baserom.us.z64. This can take a long time.'
 if [ -f ~/baserom.us.z64 ]
 then
@@ -87,4 +89,5 @@ ___  ____ _  _ ____
 |__/ |__| | \| |___
 EOF
 echo 'Go to Files and touch sm64coopdx.apk to install!'
+yes | termux-wake-unlock
 echo $RESTART_INSTRUCTIONS

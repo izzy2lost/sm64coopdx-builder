@@ -1,7 +1,7 @@
 # sm64coopdx-builder
 Script to compile sm64coopdx android port with termux. 
 
-[![TERMUX DOWNLOAD](https://img.shields.io/badge/Click%20Me-blue?style=for-the-badge)](https://github.com/termux/termux-app/releases)
+[![TERMUX DOWNLOAD](https://img.shields.io/badge/TERMUX%20DOWNLOAD-black?style=for-the-badge)](https://github.com/termux/termux-app/releases)
 
 
 ```

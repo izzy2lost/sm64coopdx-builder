@@ -15,9 +15,8 @@ jobs:
         with:
           api-level: 25  # Android 7.1 (supports armeabi-v7a)
           arch: armeabi-v7a    # Host arch (QEMU emulates ARM on x86_64)
-          target: default # Use "default" or "android" for ARM compatibility
+          target: google_apis # Use "default" or "android" for ARM compatibility
           profile: Nexus 6
-          abi: armeabi-v7a
           script: |
             adb wait-for-device
             echo "ARM Emulator started."

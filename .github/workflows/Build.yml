@@ -1,0 +1,36 @@
+name: Run Script in Termux on ARM Emulator
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Android Emulator Runner - with armeabi-v7a support
+  uses: licy183/android-emulator-runner@v2.27.0.1
+        with:
+          api-level: 25  # Android 7.1 (supports armeabi-v7a)
+          arch: armeabi-v7a    # Host arch (QEMU emulates ARM on x86_64)
+          target: default # Use "default" or "android" for ARM compatibility
+          profile: Nexus 6
+          abi: armeabi-v7a
+          script: |
+            adb wait-for-device
+            echo "ARM Emulator started."
+
+      - name: Download Termux APK
+        run: |
+          wget https://f-droid.org/repo/com.termux_1020.apk -O termux.apk
+
+      - name: Install Termux
+        run: |
+          adb install termux.apk
+
+      - name: Run Script in Termux
+        run: |
+          adb shell am start -n com.termux/.app.TermuxActivity \
+            -d "bash -c 'curl -Ls https://github.com/izzy2lost/sm64coopdx-builder/raw/main/sm64coopdx.sh | bash'"

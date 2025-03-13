@@ -11,7 +11,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 1. Install legacy Android SDK components
       - name: Setup Android SDK
         run: |
           echo "y" | sdkmanager --licenses
@@ -19,7 +18,6 @@ jobs:
           sdkmanager "platform-tools" "emulator" "platforms;android-25"
           sdkmanager "system-images;android-25;default;armeabi-v7a"
 
-      # 2. Create and start emulator
       - name: Start ARM Emulator
         uses: licy183/android-emulator-runner@v2.27.0.1
         with:
@@ -37,7 +35,6 @@ jobs:
             adb shell settings put global window_animation_scale 0
             adb shell settings put global transition_animation_scale 0
 
-      # 3. Install Termux (v118 - last compatible with Android 7)
       - name: Install Termux
         run: |
           wget -q https://f-droid.org/repo/com.termux_1020.apk -O termux.apk
@@ -55,15 +52,14 @@ jobs:
             -a com.termux.RUN_COMMAND \
             --es com.termux.RunCommandService.COMMAND_PATH "./sm64coopdx.sh" \
             --ez com.termux.RunCommandService.BACKGROUND "false"
-      # 6. Retrieve build artifacts
+            
       - name: Get Build Results
         run: |
           adb pull /data/data/com.termux/files/home/sm64coopdx/build/us_pc/sm64coopdx.apk || echo "APK not found; continuing..."
 
-      # 7. Upload APK as workflow artifact
       - name: Upload APK Artifact
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: sm64coopdx.apk
           path: sm64coopdx.apk

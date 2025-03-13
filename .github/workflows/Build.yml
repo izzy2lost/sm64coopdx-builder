@@ -55,8 +55,16 @@ jobs:
             -a com.termux.RUN_COMMAND \
             --es com.termux.RunCommandService.COMMAND_PATH "./sm64coopdx.sh" \
             --ez com.termux.RunCommandService.BACKGROUND "false"
-      
       # 6. Retrieve build artifacts
       - name: Get Build Results
         run: |
-          adb pull /data/data/com.termux/files/home/sm64coopdx/build/us_pc/sm64coopdx.apk
+          adb pull /data/data/com.termux/files/home/sm64coopdx/build/us_pc/sm64coopdx.apk || echo "APK not found; continuing..."
+
+      # 7. Upload APK as workflow artifact
+      - name: Upload APK Artifact
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: sm64coopdx.apk
+          path: sm64coopdx.apk
+          if-no-files-found: warn

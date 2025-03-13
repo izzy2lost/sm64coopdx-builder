@@ -1,35 +1,62 @@
-name: Run Script in Termux on ARM Emulator
+name: Termux Script Runner
 
 on:
   workflow_dispatch:
 
 jobs:
-  test:
+  termux-test:
     runs-on: macos-latest
+    timeout-minutes: 60
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Android Emulator Runner - with armeabi-v7a support
+      # 1. Install legacy Android SDK components
+      - name: Setup Android SDK
+        run: |
+          echo "y" | sdkmanager --licenses
+          sdkmanager --channel=3  # Enable legacy channel
+          sdkmanager "platform-tools" "emulator" "platforms;android-25"
+          sdkmanager "system-images;android-25;default;armeabi-v7a"
+
+      # 2. Create and start emulator
+      - name: Start ARM Emulator
         uses: licy183/android-emulator-runner@v2.27.0.1
         with:
-          api-level: 25  # Android 7.1 (supports armeabi-v7a)
-          arch: armeabi-v7a    # Host arch (QEMU emulates ARM on x86_64)
-          target: android # Use "default" or "android" for ARM compatibility
-          profile: Nexus 6
+          api-level: 25
+          arch: armeabi-v7a
+          profile: Nexus 5
+          emulator-options: |
+            -no-window
+            -gpu swiftshader_indirect
+            -noaudio
+            -no-boot-anim
+            -memory 2048
           script: |
             adb wait-for-device
-            echo "ARM Emulator started."
+            adb shell settings put global window_animation_scale 0
+            adb shell settings put global transition_animation_scale 0
 
-      - name: Download Termux APK
-        run: |
-          wget https://f-droid.org/repo/com.termux_1020.apk -O termux.apk
-
+      # 3. Install Termux (v118 - last compatible with Android 7)
       - name: Install Termux
         run: |
-          adb install termux.apk
-
-      - name: Run Script in Termux
+          wget -q https://f-droid.org/repo/com.termux_1020.apk -O termux.apk
+          adb install -g termux.apk
+          adb shell pm grant com.termux android.permission.READ_EXTERNAL_STORAGE
+          adb shell pm grant com.termux android.permission.WRITE_EXTERNAL_STORAGE
+   
+      - name: Push Script
         run: |
-          adb shell am start -n com.termux/.app.TermuxActivity \
-            -d "bash -c 'curl -Ls https://github.com/izzy2lost/sm64coopdx-builder/raw/main/sm64coopdx.sh | bash'"
+          adb push sm64coopdx.sh /data/data/com.termux/files/home/
+
+      - name: Run Script
+        run: |
+          adb shell am startservice -n com.termux/com.termux.app.RunCommandService \
+            -a com.termux.RUN_COMMAND \
+            --es com.termux.RunCommandService.COMMAND_PATH "./sm64coopdx.sh" \
+            --ez com.termux.RunCommandService.BACKGROUND "false"
+      
+      # 6. Retrieve build artifacts
+      - name: Get Build Results
+        run: |
+          adb pull /data/data/com.termux/files/home/sm64coopdx/build/us_pc/sm64coopdx.apk

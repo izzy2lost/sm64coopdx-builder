@@ -11,13 +11,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Android SDK
-        run: |
-          echo "y" | sdkmanager --licenses
-          sdkmanager --channel=3  # Enable legacy channel
-          sdkmanager "platform-tools" "emulator" "platforms;android-25"
-          sdkmanager "system-images;android-25;default;armeabi-v7a"
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
 
+      - name: Install Android SDK components
+        run: |
+          echo "y" | $ANDROID_HOME/tools/bin/sdkmanager --licenses
+          $ANDROID_HOME/tools/bin/sdkmanager --channel=3  # Enable legacy channel
+          $ANDROID_HOME/tools/bin/sdkmanager "platform-tools" "emulator" "platforms;android-25"
+          $ANDROID_HOME/tools/bin/sdkmanager "system-images;android-25;default;armeabi-v7a"
+          
       - name: Start ARM Emulator
         uses: licy183/android-emulator-runner@v2.27.0.1
         with:

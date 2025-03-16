@@ -68,7 +68,7 @@ jobs:
             sleep 2
 
             # Make sure setup_build.sh is executable and run it
-            adb shell "cd /data/data/com.termux/files/home && chmod +x setup_build.sh && ./setup_build.sh"
+            adb shell "chmod +x setup_build.sh && ./setup_build.sh"
             sleep 1000  # Wait for build to complete
 
       - name: Get Build Results

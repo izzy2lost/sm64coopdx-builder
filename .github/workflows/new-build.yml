@@ -34,8 +34,8 @@ jobs:
             # Ensure ADB device is online
             i=0
             while [ $i -lt 10 ]; do
-              adb devices | grep "device$" && break
-              sleep 5
+            adb devices | grep "device$" && break
+            sleep 5
               i=$((i+1))
             done
             

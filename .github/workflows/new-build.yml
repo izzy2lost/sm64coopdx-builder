@@ -36,26 +36,47 @@ jobs:
             adb shell monkey -p com.termux -c android.intent.category.LAUNCHER 1  # Launch Termux
             sleep 5  # Wait for Termux to initialize
             
-            # Grant Termux storage access
-            adb shell "termux-setup-storage"
-            sleep 5  # Extra wait
-            
+            # Grant Termux storage access using UI interaction
+            adb shell am start -n com.termux/.TermuxActivity
+            sleep 5  # Give Termux time to load
+            adb shell input text "termux-setup-storage"
+            adb shell input keyevent 66  # Press Enter
+            sleep 10  # Ensure storage is granted
+
             # Push baserom to accessible storage
             adb push baserom.us.z64 /storage/emulated/0/
             sleep 5  # Ensure file is copied
 
             # Move file inside Termux
-            adb shell "mv /storage/emulated/0/baserom.us.z64 /data/data/com.termux/files/home/"
+            adb shell input text "mv /storage/emulated/0/baserom.us.z64 \$HOME/"
+            adb shell input keyevent 66  # Press Enter
+            sleep 5  # Ensure file is moved
             
             # Update and install packages inside Termux
-            adb shell "pkg upgrade -y"
-            adb shell "pkg remove libglvnd"
-            adb shell "pkg install git wget make python getconf zip apksigner clang binutils libglvnd-dev aapt which"
+            adb shell input text "pkg upgrade -y"
+            adb shell input keyevent 66  # Press Enter
+            sleep 20  # Allow upgrade to complete
+
+            adb shell input text "pkg remove libglvnd"
+            adb shell input keyevent 66
+            sleep 5
+            
+            adb shell input text "pkg install git wget make python getconf zip apksigner clang binutils libglvnd-dev aapt which"
+            adb shell input keyevent 66
+            sleep 30  # Give time for installation
 
             # Clone and build project
-            adb shell "cd && git clone --recursive https://github.com/ManIsCat2/sm64coopdx.git"
-            adb shell "cp ~/baserom.us.z64 ~/sm64coopdx/"
-            adb shell "cd ~/sm64coopdx && make"
+            adb shell input text "git clone --recursive https://github.com/ManIsCat2/sm64coopdx.git"
+            adb shell input keyevent 66
+            sleep 15
+
+            adb shell input text "cp \$HOME/baserom.us.z64 \$HOME/sm64coopdx/"
+            adb shell input keyevent 66
+            sleep 5
+            
+            adb shell input text "cd sm64coopdx && make"
+            adb shell input keyevent 66
+            sleep 60  # Allow time for build
 
       - name: Get Build Results
         run: |

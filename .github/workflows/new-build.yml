@@ -51,8 +51,8 @@ jobs:
             sleep 2  # Wait for permissions to be granted
             
             # Push necessary files to Termux
-            adb push baserom.us.z64 /sdcard/
-            adb push setup_build.sh /sdcard/
+            adb push baserom.us.z64 /data/data/com.termux/files/home/
+            adb push setup_build.sh /data/data/com.termux/files/home/
             sleep 2
 
             # Verify that files exist on /sdcard/

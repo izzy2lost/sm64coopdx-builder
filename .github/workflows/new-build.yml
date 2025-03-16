@@ -52,7 +52,7 @@ jobs:
             sleep 2
 
             # Execute commands in Termux (single-line format)
-            adb shell input text "mv ~/storage/shared/baserom.us.z64 ~/ && mv ~/storage/shared/setup_build.sh ~/ && chmod +x ~/setup_build.sh && ./setup_build.sh"
+            adb shell input text "mv ~/storage/emulated/0/baserom.us.z64 ~/ && mv ~/storage/emulated/0/setup_build.sh ~/ && chmod +x ~/setup_build.sh && ./setup_build.sh"
             adb shell input keyevent 66
             sleep 60
 

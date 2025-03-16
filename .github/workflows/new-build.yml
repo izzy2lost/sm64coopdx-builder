@@ -13,7 +13,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y adb
-          
+
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -35,49 +35,43 @@ jobs:
             adb install termux.apk       # Install Termux APK
             adb shell monkey -p com.termux -c android.intent.category.LAUNCHER 1  # Launch Termux
             sleep 5  # Wait for Termux to initialize
-            
+
             # Grant Termux storage access manually
             adb shell am start -n com.termux/.TermuxActivity
             sleep 5
             adb shell input tap 500 1500  # Tap "Allow" if a permission popup appears
             sleep 10  # Wait for storage to be initialized
 
-            # Push baserom file to shared storage (Termux can access this)
+            # Push baserom file to Termux-accessible storage
             adb push baserom.us.z64 /storage/emulated/0/
             sleep 5  # Ensure file is copied
             
-            # Open Termux and execute commands manually
-            adb shell input text "mv /storage/emulated/0/baserom.us.z64 \$HOME/"
-            adb shell input keyevent 66  # Press Enter
+            # Open Termux and move the file to home directory
+            adb shell "termux-setup-storage"
+            sleep 5
+            adb shell "mv /storage/emulated/0/baserom.us.z64 \$HOME/"
             sleep 3
-            
-            # Run Termux build process
-            adb shell input text "pkg upgrade -y"
-            adb shell input keyevent 66
+
+            # Update and install dependencies
+            adb shell "pkg update -y && pkg upgrade -y"
             sleep 10
+            adb shell "pkg install git wget make python getconf zip apksigner clang binutils libglvnd-dev aapt which -y"
+            sleep 10  # Allow time for package installation
             
-            adb shell input text "pkg remove libglvnd"
-            adb shell input keyevent 66
-            sleep 3
-            
-            adb shell input text "pkg install git wget make python getconf zip apksigner clang binutils libglvnd-dev aapt which -y"
-            adb shell input keyevent 66
-            sleep 15  # Allow time for package installation
-            
-            adb shell input text "git clone --recursive https://github.com/ManIsCat2/sm64coopdx.git"
-            adb shell input keyevent 66
+            # Clone the repository
+            adb shell "git clone --recursive https://github.com/ManIsCat2/sm64coopdx.git \$HOME/sm64coopdx"
             sleep 10  # Wait for repo to clone
             
-            adb shell input text "cp ~/baserom.us.z64 ~/sm64coopdx/"
-            adb shell input keyevent 66
+            # Move baserom into the project
+            adb shell "mv \$HOME/baserom.us.z64 \$HOME/sm64coopdx/"
             sleep 3
             
-            adb shell input text "cd sm64coopdx && make | tee build_log.txt"
-            adb shell input keyevent 66
+            # Build the project and save logs
+            adb shell "cd \$HOME/sm64coopdx && make | tee \$HOME/build_log.txt"
             sleep 60  # Allow build time
 
       - name: Retrieve Termux Build Log
-        run: adb pull /data/data/com.termux/files/home/sm64coopdx/build_log.txt || echo "No log found"
+        run: adb pull /data/data/com.termux/files/home/build_log.txt || echo "No log found"
 
       - name: Upload Termux Build Log
         if: always()

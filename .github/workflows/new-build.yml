@@ -56,7 +56,7 @@ jobs:
             sleep 2
 
             # Move files to home directory and set up execution
-            adb shell input text "mv /sdcard/baserom.us.z64 ~/ && mv /sdcard/setup_build.sh ~/ && chmod +x ~/setup_build.sh"
+            adb shell input text touchscreen "mv /sdcard/baserom.us.z64 ~/ && mv /sdcard/setup_build.sh ~/ && chmod +x ~/setup_build.sh"
             adb shell input keyevent 66
             sleep 2
 
@@ -66,7 +66,7 @@ jobs:
             sleep 2
             
             # Run the build script
-            adb shell input text "./setup_build.sh"
+            adb shell input text touchscreen "./setup_build.sh"
             adb shell input keyevent 66
             sleep 1000  # Wait for build to complete
 

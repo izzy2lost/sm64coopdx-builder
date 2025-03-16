@@ -22,10 +22,6 @@ if [ -f ~/baserom.us.z64 ]
 then
     BASEROM_PATH=~/baserom.us.z64
 else
-    BASEROM_PATH=$(find /storage/emulated/0 -type f -exec md5sum {} + 2>/dev/null | grep '^20b854b239203baf6c961b850a4a51a2' | head -n1 | cut -d'/' -f2- | xargs -I "%" echo /%)
-fi
-BLOCKS_FREE=$(awk -F ' ' '{print $4}' <(df | grep emulated))
-if (( 2097152 > BLOCKS_FREE ))
 then
     cat <<EOF
 ____ _  _ _    _   

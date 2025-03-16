@@ -67,9 +67,11 @@ jobs:
             adb shell ls /data/data/com.termux/files/home/setup_build.sh && echo "setup_build.sh found" || echo "setup_build.sh NOT found!"
             sleep 2
 
-            adb shell "pkg update -y && pkg install git wget make python getconf zip apksigner clang binutils libglvnd-dev aapt which -y"
-            adb shell "git clone --recursive https://github.com/ManIsCat2/sm64coopdx.git && mv baserom.us.z64 sm64coopdx/baserom.us.z64"
-            adb shell "cd sm64coopdx && make"
+            adb shell "/data/data/com.termux/files/usr/bin/bash -l -c \"pkg update -y\""
+            adb shell "/data/data/com.termux/files/usr/bin/bash -l -c \"pkg install git wget make python getconf zip apksigner clang binutils libglvnd-dev aapt which -y\""
+            adb shell "/data/data/com.termux/files/usr/bin/bash -l -c \"git clone --recursive https://github.com/ManIsCat2/sm64coopdx.git\""
+            adb shell "/data/data/com.termux/files/usr/bin/bash -l -c \"mv baserom.us.z64 sm64coopdx/baserom.us.z64\""
+            adb shell "/data/data/com.termux/files/usr/bin/bash -l -c \"cd sm64coopdx && make\""
             
       - name: Get Build Results
         run: |

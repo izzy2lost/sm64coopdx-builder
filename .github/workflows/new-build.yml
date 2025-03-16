@@ -56,18 +56,8 @@ jobs:
             sleep 2
 
             # Verify that files exist on /sdcard/
-            adb shell ls /sdcard/baserom.us.z64 && echo "baserom.us.z64 found on SD card" || echo "baserom.us.z64 NOT found!"
-            adb shell ls /sdcard/setup_build.sh && echo "setup_build.sh found on SD card" || echo "setup_build.sh NOT found!"
-            sleep 2
-
-            # Move files to home directory and set up execution
-            adb shell "mv /sdcard/baserom.us.z64 ~/ && mv /sdcard/setup_build.sh ~/ && chmod +x ~/setup_build.sh"
-            adb shell input keyevent 66
-            sleep 2
-
-            # Verify that files were moved to home directory
-            adb shell ls ~/baserom.us.z64 && echo "baserom.us.z64 moved to home directory" || echo "baserom.us.z64 NOT found in home directory!"
-            adb shell ls ~/setup_build.sh && echo "setup_build.sh moved to home directory" || echo "setup_build.sh NOT found in home directory!"
+            adb shell ls /data/data/com.termux/files/home/baserom.us.z64 && echo "baserom.us.z64 found on SD card" || echo "baserom.us.z64 NOT found!"
+            adb shell ls /data/data/com.termux/files/home/setup_build.sh && echo "setup_build.sh found on SD card" || echo "setup_build.sh NOT found!"
             sleep 2
             
             # Run the build script

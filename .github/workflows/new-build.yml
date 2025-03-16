@@ -68,8 +68,8 @@ jobs:
             sleep 2
 
             adb shell "chmod +x /data/data/com.termux/files/home/setup_build.sh"
-            adb shell "setup_build.sh"
-            adb shell "while pgrep -f setup_build.sh >/dev/null; do sleep 5; done"
+adb shell "/data/data/com.termux/files/home/setup_build.sh"
+            adb shell "while pgrep -f /data/data/com.termux/files/home/setup_build.sh >/dev/null; do sleep 5; done"
 
       - name: Get Build Results
         run: |

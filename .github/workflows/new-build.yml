@@ -34,9 +34,6 @@ jobs:
             # Install Termux
             adb install termux.apk
 
-            # Grant storage permissions (older method)
-            adb shell pm grant com.termux android.permission.WRITE_EXTERNAL_STORAGE
-
             # Launch Termux
             adb shell am start -n com.termux/.HomeActivity
             sleep 8  # Increased wait for bootstrap dialog
@@ -44,6 +41,10 @@ jobs:
             # Simulate tapping "Allow" (adjust if needed)
             adb shell input tap 540 1700  
             sleep 2  # Wait for permissions to be granted
+
+
+            # Grant storage permissions (older method)
+            adb shell pm grant com.termux android.permission.WRITE_EXTERNAL_STORAGE
 
             # Push necessary files to Termux
             adb push baserom.us.z64 /sdcard/

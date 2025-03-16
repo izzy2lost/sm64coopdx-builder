@@ -44,8 +44,12 @@ jobs:
 
 
             # Grant storage permissions (older method)
-            adb shell pm grant com.termux android.permission.WRITE_EXTERNAL_STORAGE
-
+            adb shell input text "termux-setup-storage"
+            sleep 8
+            # Simulate tapping "Allow" (adjust if needed)
+            adb shell input tap 540 1700  
+            sleep 2  # Wait for permissions to be granted
+            
             # Push necessary files to Termux
             adb push baserom.us.z64 /sdcard/
             adb push setup_build.sh /sdcard/

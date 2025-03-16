@@ -34,49 +34,28 @@ jobs:
             adb shell input keyevent 82  # Unlock screen
             adb install termux.apk       # Install Termux APK
             adb shell monkey -p com.termux -c android.intent.category.LAUNCHER 1  # Launch Termux
-            # Grant Termux storage access
-            adb shell am start -n com.termux/.TermuxActivity
             sleep 5  # Wait for Termux to initialize
-            adb shell input text "termux-setup-storage"
-            adb shell input keyevent 66  # Press Enter
-            sleep 10  # Extra wait to ensure storage is ready
+            
+            # Grant Termux storage access
+            adb shell "termux-setup-storage"
+            sleep 5  # Extra wait
             
             # Push baserom to accessible storage
             adb push baserom.us.z64 /storage/emulated/0/
             sleep 5  # Ensure file is copied
 
-            # Open Termux and move baserom to home directory
-            adb shell am start -n com.termux/.TermuxActivity
-            sleep 5
-            adb shell input text "mv /storage/emulated/0/baserom.us.z64 \$HOME/"
-            adb shell input keyevent 66
-            sleep 5
-
-            # Update and install packages
-            adb shell input text "pkg upgrade -y"
-            adb shell input keyevent 66
-            sleep 20
+            # Move file inside Termux
+            adb shell "mv /storage/emulated/0/baserom.us.z64 /data/data/com.termux/files/home/"
             
-            adb shell input text "pkg remove libglvnd"
-            adb shell input keyevent 66
-            sleep 5
-            
-            adb shell input text "pkg install git wget make python getconf zip apksigner clang binutils libglvnd-dev aapt which"
-            adb shell input keyevent 66
-            sleep 20
+            # Update and install packages inside Termux
+            adb shell "pkg upgrade -y"
+            adb shell "pkg remove libglvnd"
+            adb shell "pkg install git wget make python getconf zip apksigner clang binutils libglvnd-dev aapt which"
 
             # Clone and build project
-            adb shell input text "git clone --recursive https://github.com/ManIsCat2/sm64coopdx.git"
-            adb shell input keyevent 66
-            sleep 20
-            
-            adb shell input text "cp \$HOME/baserom.us.z64 \$HOME/sm64coopdx/baserom.us.z64"
-            adb shell input keyevent 66
-            sleep 5
-            
-            adb shell input text "cd \$HOME/sm64coopdx && make"
-            adb shell input keyevent 66
-            sleep 60  # Adjust build time as needed
+            adb shell "cd && git clone --recursive https://github.com/ManIsCat2/sm64coopdx.git"
+            adb shell "cp ~/baserom.us.z64 ~/sm64coopdx/"
+            adb shell "cd ~/sm64coopdx && make"
 
       - name: Get Build Results
         run: |

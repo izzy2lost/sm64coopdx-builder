@@ -47,8 +47,6 @@ jobs:
             sleep 5  # Ensure file is copied
             
             # Open Termux and move the file to home directory
-            adb shell "termux-setup-storage"
-            sleep 5
             adb shell "mv /storage/emulated/0/baserom.us.z64 \$HOME/"
             sleep 3
 

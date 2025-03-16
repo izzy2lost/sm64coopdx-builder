@@ -35,6 +35,9 @@ jobs:
             for i in {1..10}; do
               adb devices | grep "device$" && break || sleep 5
             done
+            
+            # Disable screen timeout
+            adb shell settings put system screen_off_timeout 2147483647
 
             # Install Termux
             adb install termux.apk

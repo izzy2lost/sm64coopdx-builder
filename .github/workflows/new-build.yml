@@ -49,8 +49,8 @@ jobs:
             # Verify storage permission is granted
             adb shell ls /storage/emulated/0 && echo "Storage access granted!" || echo "Storage access NOT granted!"
             # Push necessary files to Termux home directory
-            adb push baserom.us.z64 /data/data/com.termux/files/home/
-            adb push setup_build.sh /data/data/com.termux/files/home/
+            adb push baserom.us.z64 /data/data/com.termux/files/home/baserom.us.z64
+            adb push setup_build.sh /data/data/com.termux/files/home/setup_build.sh
             sleep 2
             # Confirm files are present
             adb shell ls /data/data/com.termux/files/home/baserom.us.z64 && echo "baserom.us.z64 found" || echo "baserom.us.z64 NOT found!"

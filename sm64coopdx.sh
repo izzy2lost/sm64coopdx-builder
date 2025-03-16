@@ -3,20 +3,57 @@ RESTART_INSTRUCTIONS="Dropping to shell. To rebuild, swipe from the top of your 
 if ! ls /storage/emulated/0 >/dev/null 2>&1
 then
     yes | pkg install termux-am
-    yes | termux-setup-storage
 fi
 cat <<EOF
+____ ____ ____ ___ 
+|    |  | |  | |__]
+|___ |__| |__| |   
+___  _  _ _ _    ___  ____ ____
+|__] |  | | |    |  \ |___ |__/
+|__] |__| | |___ |__/ |___ |  \\
+EOF
+if read -r -s -n 1 -t 5 -p "Press any key within 5 seconds to cancel build" key
+then
+    echo && echo $RESTART_INSTRUCTIONS
+    exit 0
+fi
 echo 'Autodetecting baserom.us.z64. This can take a long time.'
 if [ -f ~/baserom.us.z64 ]
 then
     BASEROM_PATH=~/baserom.us.z64
 else
+    BASEROM_PATH=$(find /storage/emulated/0 -type f -exec md5sum {} + 2>/dev/null | grep '^20b854b239203baf6c961b850a4a51a2' | head -n1 | cut -d'/' -f2- | xargs -I "%" echo /%)
+fi
+BLOCKS_FREE=$(awk -F ' ' '{print $4}' <(df | grep emulated))
+if (( 2097152 > BLOCKS_FREE ))
+then
+    cat <<EOF
+____ _  _ _    _   
+|___ |  | |    |   
+|    |__| |___ |___
+EOF
+    echo 'Your device storage needs at least 2 GB free space to continue!'
+    echo $RESTART_INSTRUCTIONS
+    exit 1
+fi
+if [ -z "${BASEROM_PATH}" ]
+then
+    cat <<EOF
+_  _ ____    ____ ____ _  _
+|\ | |  |    |__/ |  | |\/|
+| \| |__|    |  \ |__| |  |
+EOF
+    echo 'Go to https://github.com/sanni/cartreader to learn how to get baserom.us.z64'
+    echo $RESTART_INSTRUCTIONS
+    exit 2
+else
     cp "${BASEROM_PATH}" ~/baserom.us.z64
+fi
 apt-mark hold bash
 yes | pkg upgrade -y
 yes | pkg install git wget make python getconf zip apksigner clang binutils libglvnd-dev aapt which
 cd
-if [ -d "sm64coopdx" ]
+if [ -d "sm64ex-omm" ]
 then
     cp "${BASEROM_PATH}" sm64coopdx/baserom.us.z64
     cd sm64coopdx

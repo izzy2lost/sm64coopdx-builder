@@ -66,25 +66,7 @@ jobs:
             
             adb shell input touchscreen text "./setup_build.sh"
             adb shell input keyevent 66
-            sleep 60
-
-            # Keep emulator awake
-            while [ ! -f /data/data/com.termux/files/home/build_log.txt ]; do
-              sleep 30
-              adb shell input keyevent 82
-            done
-
-      - name: Retrieve Termux Build Log
-        run: |
-          adb pull /data/data/com.termux/files/home/build_log.txt || echo "No log found"
-
-      - name: Upload Termux Build Log
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: termux-build-log
-          path: build_log.txt
-          if-no-files-found: warn
+            sleep 300
 
       - name: Get Build Results
         run: |

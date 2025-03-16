@@ -40,16 +40,22 @@ jobs:
             adb shell input text "termux-setup-storage"
             adb shell input keyevent 66  # Press Enter
             sleep 10  # Extra wait to ensure storage is ready
-            # Push baserom to Termux home directory
-            adb push baserom.us.z64 /data/data/com.termux/files/home/
-            sleep 5  # Ensure file is copied
             
-            # Run commands inside Termux
+            # Push baserom to accessible storage
+            adb push baserom.us.z64 /storage/emulated/0/
+            sleep 5  # Ensure file is copied
+
+            # Open Termux and move baserom to home directory
             adb shell am start -n com.termux/.TermuxActivity
-            sleep 5  # Wait for Termux
+            sleep 5
+            adb shell input text "mv /storage/emulated/0/baserom.us.z64 \$HOME/"
+            adb shell input keyevent 66
+            sleep 5
+
+            # Update and install packages
             adb shell input text "pkg upgrade -y"
-            adb shell input keyevent 66  # Press Enter
-            sleep 20  # Wait for update
+            adb shell input keyevent 66
+            sleep 20
             
             adb shell input text "pkg remove libglvnd"
             adb shell input keyevent 66
@@ -57,17 +63,18 @@ jobs:
             
             adb shell input text "pkg install git wget make python getconf zip apksigner clang binutils libglvnd-dev aapt which"
             adb shell input keyevent 66
-            sleep 20  # Wait for install
-            
+            sleep 20
+
+            # Clone and build project
             adb shell input text "git clone --recursive https://github.com/ManIsCat2/sm64coopdx.git"
             adb shell input keyevent 66
-            sleep 20  # Wait for clone
+            sleep 20
             
-            adb shell input text "cp baserom.us.z64 sm64coopdx/baserom.us.z64"
+            adb shell input text "cp \$HOME/baserom.us.z64 \$HOME/sm64coopdx/baserom.us.z64"
             adb shell input keyevent 66
             sleep 5
             
-            adb shell input text "cd sm64coopdx && make"
+            adb shell input text "cd \$HOME/sm64coopdx && make"
             adb shell input keyevent 66
             sleep 60  # Adjust build time as needed
 

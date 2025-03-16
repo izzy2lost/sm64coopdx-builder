@@ -43,10 +43,11 @@ jobs:
 
             # Push baserom and setup script to Termux
             adb push baserom.us.z64 /storage/emulated/0/
-            adb push setup_build.sh /data/data/com.termux/files/home/
+            adb push setup_build.sh /storage/emulated/0/
             sleep 5  # Ensure files are copied
 
             # Give execution permission and run the script inside Termux
+            adb shell command "mv /storage/emulated/0/baserom.us.z64 \$HOME/"
             adb shell "chmod +x \$HOME/setup_build.sh && \$HOME/setup_build.sh"
             sleep 60  # Allow build time
 

@@ -40,10 +40,10 @@ jobs:
             adb shell input keyevent 66  # Press Enter
             sleep 10  # Extra wait to ensure storage is ready
             # Push files to a writable Android directory
-            adb push baserom.us.z64 /data/data/com.termux/files/home/
-            adb push sm64coopdx.sh /data/data/com.termux/files/home/
+            adb push baserom.us.z64 /storage/emulated/0/
+            adb push sm64coopdx.sh /storage/emulated/0/
             # Execute via ADB shell (limited to Android's tools)
-            adb shell "sh /data/data/com.termux/files/home/sm64coopdx.sh"
+            adb shell "sh /storage/emulated/0/sm64coopdx.sh"
 
       - name: Get Build Results
         run: |

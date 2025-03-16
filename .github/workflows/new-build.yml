@@ -41,37 +41,31 @@ jobs:
             adb shell am start -n com.termux/.HomeActivity
             sleep 8  # Increased wait for bootstrap dialog
 
-            # Alternative method using button text detection
-            adb shell uiautomator dump && adb shell cat /sdcard/window_dump.xml | \
-            grep -oE 'text="Allow"[^>]*bounds="([0-9]+),([0-9]+)([0-9]+),([0-9]+)"' |. \
+            # Handle storage permission prompt
+            adb shell uiautomator dump
+            adb shell cat /sdcard/window_dump.xml | \
+            grep -oE 'text="Allow"[^>]*bounds="([0-9]+),([0-9]+)([0-9]+),([0-9]+)"' | \
             awk -F'[][]|,' '{print ($2+$4)/2, ($3+$5)/2}' | xargs adb shell input tap
             
-            # Continue with storage setup
+            # Setup Termux storage
             adb shell input text "termux-setup-storage"
             adb shell input keyevent 66
             sleep 3
 
-            # Push files to shared storage
+            # Push necessary files to Termux
             adb push baserom.us.z64 /sdcard/
             adb push setup_build.sh /sdcard/
             sleep 2
 
-            # Execute commands in Termux (properly formatted)
-            adb shell input touchscreen text "mv\ /sdcard/baserom.us.z64\ \~/"
+            # Move files to home directory and set up execution
+            adb shell input text "mv /sdcard/baserom.us.z64 ~/ && mv /sdcard/setup_build.sh ~/ && chmod +x ~/setup_build.sh"
             adb shell input keyevent 66
             sleep 2
             
-            adb shell input touchscreen text "mv\ /sdcard/setup_build.sh\ \~/"
+            # Run the build script
+            adb shell input text "./setup_build.sh"
             adb shell input keyevent 66
-            sleep 2
-            
-            adb shell input touchscreen text "chmod\ +x\ \~/setup_build.sh"
-            adb shell input keyevent 66
-            sleep 2
-            
-            adb shell input touchscreen text "./setup_build.sh"
-            adb shell input keyevent 66
-            sleep 1000
+            sleep 1000  # Wait for build to complete
 
       - name: Get Build Results
         run: |
@@ -82,5 +76,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: sm64coopdx.apk
-          path: sm64coopdx.apk
+          path: /data/data/com.termux/files/home/sm64coopdx/build/us_pc/sm64coopdx.apk
           if-no-files-found: warn

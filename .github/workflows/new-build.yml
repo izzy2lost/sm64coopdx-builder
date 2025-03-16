@@ -26,42 +26,52 @@ jobs:
       - name: Start Android Emulator, Install Termux, and Run Script
         uses: reactivecircus/android-emulator-runner@v2.33.0
         with:
-          api-level: 21
+          api-level: 25  # Changed from 21 to 25 for better Termux support
           script: |
             adb start-server
             adb devices
 
+            # Ensure ADB device is online
+            for i in {1..10}; do
+              adb devices | grep "device$" && break || sleep 5
+            done
+
             # Install Termux
             adb install termux.apk
 
-            # Launch Termux
+            # Launch Termux and wait
             adb shell am start -n com.termux/.HomeActivity
-            sleep 8  # Increased wait for bootstrap dialog
+            sleep 10  # Increased wait for bootstrap dialog
 
-            # Simulate tapping "Allow" (adjust if needed)
+            # Simulate tapping "Allow" for storage permissions
             adb shell input tap 540 1700  
-            sleep 2  # Wait for permissions to be granted
+            sleep 2  
 
-
-            # Grant storage permissions (older method)
+            # Run termux-setup-storage to create storage directories
             adb shell input text "termux-setup-storage"
-            sleep 8
-            # Simulate tapping "Allow" (adjust if needed)
+            adb shell input keyevent 66
+            sleep 10  
+
+            # Simulate tapping "Allow" again if needed
             adb shell input tap 540 1700  
-            sleep 2  # Wait for permissions to be granted
-            
-            # Push necessary files to Termux
+            sleep 2  
+
+            # Verify storage permission is granted
+            adb shell ls /storage/emulated/0 && echo "Storage access granted!" || echo "Storage access NOT granted!"
+
+            # Push necessary files to Termux home directory
             adb push baserom.us.z64 /data/data/com.termux/files/home/
             adb push setup_build.sh /data/data/com.termux/files/home/
             sleep 2
 
-            # Verify that files exist on /sdcard/
+            # Confirm files are present
             adb shell ls /data/data/com.termux/files/home/baserom.us.z64 && echo "baserom.us.z64 found" || echo "baserom.us.z64 NOT found!"
             adb shell ls /data/data/com.termux/files/home/setup_build.sh && echo "setup_build.sh found" || echo "setup_build.sh NOT found!"
             sleep 2
-            
-            adb shell "chmod +x setup_build.sh && ./setup_build.sh"
-            sleep 1000  # Wait for <<< to complete
+
+            # Make sure setup_build.sh is executable and run it
+            adb shell "cd /data/data/com.termux/files/home && chmod +x setup_build.sh && ./setup_build.sh"
+            sleep 1000  # Wait for build to complete
 
       - name: Get Build Results
         run: |

@@ -29,32 +29,45 @@ jobs:
           api-level: 28
           script: |
             adb start-server
-            adb devices  # Ensure the emulator is detected
-            adb shell input keyevent 82  # Unlock screen
-            adb install termux.apk       # Install Termux APK
-            adb shell monkey -p com.termux -c android.intent.category.LAUNCHER 1  # Launch Termux
-            sleep 10  # Wait for Termux to initialize
+            adb devices
 
-            # Grant Termux storage access
-            adb shell am start -n com.termux
-           sleep 5
-            adb shell command "termux-setup-storage"
-            adb shell input tap 500 1500  # Tap "Allow" if a permission popup appears
-            sleep 10  # Wait for storage setup
+            # Install Termux
+            adb install termux.apk
 
-            # Push baserom and setup script to Termux
+            # Grant storage permissions (Android 9/API 28)
+            adb shell pm grant com.termux android.permission.WRITE_EXTERNAL_STORAGE
+
+            # Launch Termux and set up storage
+            adb shell am start -n com.termux/.HomeActivity
+            sleep 5  # Wait for Termux to launch
+
+            # Execute termux-setup-storage within Termux
+            adb shell input text "termux-setup-storage"
+            adb shell input keyevent 66  # Send Enter key
+            sleep 3  # Wait for storage setup
+
+            # Push files to shared storage
             adb push baserom.us.z64 /storage/emulated/0/
             adb push setup_build.sh /storage/emulated/0/
-            sleep 5  # Ensure files are copied
+            sleep 2  # Ensure files transfer
 
-            # Give execution permission and run the script inside Termux
-            adb shell "chmod 777 /storage/emulated/0/"
-            adb shell command "mv /storage/emulated/0/baserom.us.z64 \$HOME/"
-            adb shell "chmod +x \$HOME/setup_build.sh && \$HOME/setup_build.sh"
-            sleep 60  # Allow build time
+            # Execute commands in Termux to move files and run build
+            adb shell input text "mv ~/storage/shared/baserom.us.z64 ~/ && \
+              mv ~/storage/shared/setup_build.sh ~/ && \
+              chmod +x ~/setup_build.sh && \
+              ./setup_build.sh"
+            adb shell input keyevent 66  # Send Enter key
+            sleep 60  # Initial build time
+
+            # Keep the emulator running while build completes
+            while [ ! -f /data/data/com.termux/files/home/build_log.txt ]; do
+              sleep 30
+              adb shell input keyevent 82  # Keep screen awake
+            done
 
       - name: Retrieve Termux Build Log
-        run: adb pull /data/data/com.termux/files/home/build_log.txt || echo "No log found"
+        run: |
+          adb pull /data/data/com.termux/files/home/build_log.txt || echo "No log found"
 
       - name: Upload Termux Build Log
         if: always()
@@ -66,7 +79,7 @@ jobs:
 
       - name: Get Build Results
         run: |
-          adb pull /data/data/com.termux/files/home/sm64coopdx/build/us_pc/sm64coopdx.apk || echo "APK not found; continuing..."
+          adb pull /data/data/com.termux/files/home/sm64coopdx/build/us_pc/sm64coopdx.apk || echo "APK not found"
 
       - name: Upload APK Artifact
         if: always()

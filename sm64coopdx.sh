@@ -5,8 +5,8 @@ then
     yes | pkg install termux-am
     cp /storage/emulated/0/baserom.us.z64 ~/baserom.us.z64
 fi
-yes | pkg upgrade -y
-yes | pkg install git wget make python getconf zip apksigner clang binutils libglvnd-dev aapt which
+pkg upgrade -y
+pkg install git wget make python getconf zip apksigner clang binutils libglvnd-dev aapt which -y
     git clone --recursive https://github.com/ManIsCat2/sm64coopdx.git
     cp  /storage/emulated/0/baserom.us.z64 sm64coopdx/baserom.us.z64
     cd sm64coopdx

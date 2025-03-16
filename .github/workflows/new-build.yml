@@ -23,6 +23,7 @@ jobs:
       - name: Download Termux APK
         run: |
           wget https://f-droid.org/repo/com.termux_1020.apk -O termux.apk
+          
       - name: Start Android Emulator, Install Termux, and Run Script
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -39,11 +40,36 @@ jobs:
             adb shell input text "termux-setup-storage"
             adb shell input keyevent 66  # Press Enter
             sleep 10  # Extra wait to ensure storage is ready
-            # Push files to a writable Android directory
-            adb push baserom.us.z64 /storage/emulated/0/
-            adb push sm64coopdx.sh /storage/emulated/0/
-            # Execute via ADB shell (limited to Android's tools)
-            adb shell "sh /storage/emulated/0/sm64coopdx.sh"
+            # Push baserom to Termux home directory
+            adb push baserom.us.z64 /data/data/com.termux/files/home/
+            sleep 5  # Ensure file is copied
+            
+            # Run commands inside Termux
+            adb shell am start -n com.termux/.TermuxActivity
+            sleep 5  # Wait for Termux
+            adb shell input text "pkg upgrade -y"
+            adb shell input keyevent 66  # Press Enter
+            sleep 20  # Wait for update
+            
+            adb shell input text "pkg remove libglvnd"
+            adb shell input keyevent 66
+            sleep 5
+            
+            adb shell input text "pkg install git wget make python getconf zip apksigner clang binutils libglvnd-dev aapt which"
+            adb shell input keyevent 66
+            sleep 20  # Wait for install
+            
+            adb shell input text "git clone --recursive https://github.com/ManIsCat2/sm64coopdx.git"
+            adb shell input keyevent 66
+            sleep 20  # Wait for clone
+            
+            adb shell input text "cp baserom.us.z64 sm64coopdx/baserom.us.z64"
+            adb shell input keyevent 66
+            sleep 5
+            
+            adb shell input text "cd sm64coopdx && make"
+            adb shell input keyevent 66
+            sleep 60  # Adjust build time as needed
 
       - name: Get Build Results
         run: |

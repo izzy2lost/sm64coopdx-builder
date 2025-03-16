@@ -24,7 +24,7 @@ jobs:
         run: wget https://f-droid.org/repo/com.termux_1020.apk -O termux.apk
 
       - name: Start Android Emulator, Install Termux, and Run Script
-        uses: reactivecircus/android-emulator-runner@v2
+        uses: reactivecircus/android-emulator-runner@v2.33.0
         with:
           api-level: 28
           script: |
@@ -38,6 +38,7 @@ jobs:
             # Grant Termux storage access
             adb shell am start -n com.termux/.TermuxActivity
             sleep 5
+            adb shell termux-setup-storage 
             adb shell input tap 500 1500  # Tap "Allow" if a permission popup appears
             sleep 10  # Wait for storage setup
 

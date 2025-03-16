@@ -42,8 +42,9 @@ jobs:
             sleep 8  # Increased wait for bootstrap dialog
 
             # Alternative method using button text detection
-            adb shell uiautomator dump && adb shell cat /sdcard/window_dump.xml | grep -oE 'text="Allow"[^>]*bounds="(\d+),(\d+)(\d+),(\d+)"' | awk -F'[][,]' '{print ($1+$3)/2 " " ($2+$4)/2}' | xargs adb shell input tap
-            sleep 5
+            adb shell uiautomator dump && adb shell cat /sdcard/window_dump.xml | \
+grep -oE 'text="Allow"[^>]*bounds="([0-9]+),([0-9]+)([0-9]+),([0-9]+)"' | \
+awk -F'[][]|,' '{print ($2+$4)/2, ($3+$5)/2}' | xargs adb shell input tap
             
             # Continue with storage setup
             adb shell input text "termux-setup-storage"

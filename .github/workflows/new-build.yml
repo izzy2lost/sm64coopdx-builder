@@ -26,7 +26,7 @@ jobs:
       - name: Start Android Emulator, Install Termux, and Run Script
         uses: reactivecircus/android-emulator-runner@v2.33.0
         with:
-          api-level: 28
+          api-level: 25
           script: |
             adb start-server
             adb devices
@@ -70,7 +70,7 @@ jobs:
             
             adb shell input touchscreen text "./setup_build.sh"
             adb shell input keyevent 66
-            sleep 600
+            sleep 1000
 
       - name: Get Build Results
         run: |

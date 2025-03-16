@@ -5,19 +5,8 @@ then
     yes | pkg install termux-am
     cp /storage/emulated/0/baserom.us.z64 ~/baserom.us.z64
 fi
-apt-mark hold bash
 yes | pkg upgrade -y
 yes | pkg install git wget make python getconf zip apksigner clang binutils libglvnd-dev aapt which
-cd
-if [ -d "sm64coopdx" ]
-then
-    cp  /storage/emulated/0/baserom.us.z64 sm64coopdx/baserom.us.z64
-    cd sm64coopdx
-    git reset --hard HEAD
-    git pull origin android
-    git submodule update --init --recursive
-    make distclean
-else
     git clone --recursive https://github.com/ManIsCat2/sm64coopdx.git
     cp  /storage/emulated/0/baserom.us.z64 sm64coopdx/baserom.us.z64
     cd sm64coopdx

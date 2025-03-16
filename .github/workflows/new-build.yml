@@ -19,11 +19,10 @@ jobs:
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
-          
+
       - name: Download Termux APK
-        run: |
-          wget https://f-droid.org/repo/com.termux_1020.apk -O termux.apk
-          
+        run: wget https://f-droid.org/repo/com.termux_1020.apk -O termux.apk
+
       - name: Start Android Emulator, Install Termux, and Run Script
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -34,38 +33,21 @@ jobs:
             adb shell input keyevent 82  # Unlock screen
             adb install termux.apk       # Install Termux APK
             adb shell monkey -p com.termux -c android.intent.category.LAUNCHER 1  # Launch Termux
-            sleep 5  # Wait for Termux to initialize
+            sleep 10  # Wait for Termux to initialize
 
-            # Grant Termux storage access manually
+            # Grant Termux storage access
             adb shell am start -n com.termux/.TermuxActivity
             sleep 5
             adb shell input tap 500 1500  # Tap "Allow" if a permission popup appears
-            sleep 10  # Wait for storage to be initialized
+            sleep 10  # Wait for storage setup
 
-            # Push baserom file to Termux-accessible storage
+            # Push baserom and setup script to Termux
             adb push baserom.us.z64 /storage/emulated/0/
-            sleep 5  # Ensure file is copied
-            
-            # Open Termux and move the file to home directory
-            adb shell "mv /storage/emulated/0/baserom.us.z64 \$HOME/"
-            sleep 3
+            adb push setup_build.sh /data/data/com.termux/files/home/
+            sleep 5  # Ensure files are copied
 
-            # Update and install dependencies
-            adb shell "pkg update -y && pkg upgrade -y"
-            sleep 10
-            adb shell "pkg install git wget make python getconf zip apksigner clang binutils libglvnd-dev aapt which -y"
-            sleep 10  # Allow time for package installation
-            
-            # Clone the repository
-            adb shell "git clone --recursive https://github.com/ManIsCat2/sm64coopdx.git \$HOME/sm64coopdx"
-            sleep 10  # Wait for repo to clone
-            
-            # Move baserom into the project
-            adb shell "mv \$HOME/baserom.us.z64 \$HOME/sm64coopdx/"
-            sleep 3
-            
-            # Build the project and save logs
-            adb shell "cd \$HOME/sm64coopdx && make | tee \$HOME/build_log.txt"
+            # Give execution permission and run the script inside Termux
+            adb shell "chmod +x \$HOME/setup_build.sh && \$HOME/setup_build.sh"
             sleep 60  # Allow build time
 
       - name: Retrieve Termux Build Log

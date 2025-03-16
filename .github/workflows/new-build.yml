@@ -34,32 +34,35 @@ jobs:
             # Install Termux
             adb install termux.apk
 
-            # Grant storage permissions
+            # Grant storage permissions (older method)
             adb shell pm grant com.termux android.permission.WRITE_EXTERNAL_STORAGE
 
             # Launch Termux
             adb shell am start -n com.termux/.HomeActivity
             sleep 8  # Increased wait for bootstrap dialog
 
-            # Handle storage permission prompt
-            adb shell uiautomator dump
-            adb shell cat /sdcard/window_dump.xml | \
-            grep -oE 'text="Allow"[^>]*bounds="([0-9]+),([0-9]+)([0-9]+),([0-9]+)"' | \
-            awk -F'[][]|,' '{print ($2+$4)/2, ($3+$5)/2}' | xargs adb shell input tap
-            
-            # Setup Termux storage
-            adb shell input text "termux-setup-storage"
-            adb shell input keyevent 66
-            sleep 3
+            # Simulate tapping "Allow" (adjust if needed)
+            adb shell input tap 540 1700  
+            sleep 2  # Wait for permissions to be granted
 
             # Push necessary files to Termux
             adb push baserom.us.z64 /sdcard/
             adb push setup_build.sh /sdcard/
             sleep 2
 
+            # Verify that files exist on /sdcard/
+            adb shell ls /sdcard/baserom.us.z64 && echo "baserom.us.z64 found on SD card" || echo "baserom.us.z64 NOT found!"
+            adb shell ls /sdcard/setup_build.sh && echo "setup_build.sh found on SD card" || echo "setup_build.sh NOT found!"
+            sleep 2
+
             # Move files to home directory and set up execution
             adb shell input text "mv /sdcard/baserom.us.z64 ~/ && mv /sdcard/setup_build.sh ~/ && chmod +x ~/setup_build.sh"
             adb shell input keyevent 66
+            sleep 2
+
+            # Verify that files were moved to home directory
+            adb shell ls ~/baserom.us.z64 && echo "baserom.us.z64 moved to home directory" || echo "baserom.us.z64 NOT found in home directory!"
+            adb shell ls ~/setup_build.sh && echo "setup_build.sh moved to home directory" || echo "setup_build.sh NOT found in home directory!"
             sleep 2
             
             # Run the build script
@@ -69,6 +72,8 @@ jobs:
 
       - name: Get Build Results
         run: |
+          adb shell ls /data/data/com.termux/files/home/sm64coopdx/build/us_pc/ && echo "Build directory exists" || echo "Build directory NOT found!"
+          adb shell ls /data/data/com.termux/files/home/sm64coopdx/build/us_pc/sm64coopdx.apk && echo "APK found!" || echo "APK NOT found!"
           adb pull /data/data/com.termux/files/home/sm64coopdx/build/us_pc/sm64coopdx.apk || echo "APK not found"
 
       - name: Upload APK Artifact

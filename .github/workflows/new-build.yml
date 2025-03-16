@@ -39,10 +39,14 @@ jobs:
 
             # Launch Termux
             adb shell am start -n com.termux/.HomeActivity
-            sleep 5
+            sleep 8  # Increased wait for bootstrap dialog
 
-            # Set up storage
-            adb shell input touchscreen text "termux-setup-storage"
+            # Alternative method using button text detection
+            adb shell uiautomator dump && adb shell cat /sdcard/window_dump.xml | grep -oE 'text="Allow"[^>]*bounds="(\d+),(\d+)(\d+),(\d+)"' | awk -F'[][,]' '{print ($1+$3)/2 " " ($2+$4)/2}' | xargs adb shell input tap
+            sleep 5
+            
+            # Continue with storage setup
+            adb shell input text "termux-setup-storage"
             adb shell input keyevent 66
             sleep 3
 

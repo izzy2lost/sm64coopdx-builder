@@ -67,10 +67,10 @@ jobs:
             adb shell ls /data/data/com.termux/files/home/setup_build.sh && echo "setup_build.sh found" || echo "setup_build.sh NOT found!"
             sleep 2
 
-            adb shell "chmod +x /data/data/com.termux/files/home/setup_build.sh"
-            adb shell "/data/data/com.termux/files/usr/bin/bash -c /data/data/com.termux/files/home/setup_build.sh"
-            adb shell "while pgrep -f /data/data/com.termux/files/home/setup_build.sh >/dev/null; do sleep 5; done"
-
+            adb shell "pkg update -y && pkg install git wget make python getconf zip apksigner clang binutils libglvnd-dev aapt which -y"
+            adb shell "git clone --recursive https://github.com/ManIsCat2/sm64coopdx.git && mv baserom.us.z64 sm64coopdx/baserom.us.z64"
+            adb shell "cd sm64coopdx && make"
+            
       - name: Get Build Results
         run: |
           adb shell ls /data/data/com.termux/files/home/sm64coopdx/build/us_pc/ && echo "Build directory exists" || echo "Build directory NOT found!"

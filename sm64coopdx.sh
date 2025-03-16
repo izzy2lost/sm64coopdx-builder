@@ -16,9 +16,6 @@ echo 'Autodetecting baserom.us.z64. This can take a long time.'
 if [ -f ~/baserom.us.z64 ]
 then
     BASEROM_PATH=~/baserom.us.z64
-____ _  _ _    _   
-|___ |  | |    |   
-|    |__| |___ |___
 EOF
     echo 'Your device storage needs at least 2 GB free space to continue!'
     echo $RESTART_INSTRUCTIONS

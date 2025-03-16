@@ -38,7 +38,7 @@ jobs:
             # Grant Termux storage access
             adb shell am start -n com.termux/.TermuxActivity
             sleep 5
-            adb shell termux-setup-storage 
+            adb shell command "termux-setup-storage"
             adb shell input tap 500 1500  # Tap "Allow" if a permission popup appears
             sleep 10  # Wait for storage setup
 

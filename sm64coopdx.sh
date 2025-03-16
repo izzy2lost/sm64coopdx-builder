@@ -6,18 +6,6 @@ then
     yes | termux-setup-storage
 fi
 cat <<EOF
-____ ____ ____ ___ 
-|    |  | |  | |__]
-|___ |__| |__| |   
-___  _  _ _ _    ___  ____ ____
-|__] |  | | |    |  \ |___ |__/
-|__] |__| | |___ |__/ |___ |  \\
-EOF
-if read -r -s -n 1 -t 5 -p "Press any key within 5 seconds to cancel build" key
-then
-    echo && echo $RESTART_INSTRUCTIONS
-    exit 0
-fi
 echo 'Autodetecting baserom.us.z64. This can take a long time.'
 if [ -f ~/baserom.us.z64 ]
 then

@@ -73,7 +73,7 @@ jobs:
 
             # Make bootstrap script executable and add it to .bashrc for auto-run
             adb shell "chmod +x /data/data/com.termux/files/home/install_bootstrap.sh"
-            adb shell "echo 'sh ~/install_bootstrap.sh' >> ~/.bashrc"
+            adb shell "echo 'sh /data/data/com.termux/files/home/install_bootstrap.sh' >> /data/data/com.termux/files/home/.bashrc"
 
             # Restart Termux to apply changes
             adb shell am force-stop com.termux

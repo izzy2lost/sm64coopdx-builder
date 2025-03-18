@@ -56,8 +56,9 @@ jobs:
             adb shell ls /data/data/com.termux/files/home/baserom.us.z64 && echo "baserom.us.z64 found" || echo "baserom.us.z64 NOT found!"
             adb shell ls /data/data/com.termux/files/home/setup_build.sh && echo "setup_build.sh found" || echo "setup_build.sh NOT found!"
             sleep 2
-            # Make sure setup_build.sh is executable and run it
-            adb shell "/data/data/com.termux/files/home/setup_build.sh"
+            # Make sure setup_build.sh is executable and run it inside Termux
+            adb shell "chmod +x /data/data/com.termux/files/home/setup_build.sh"
+            adb shell "termux-chroot sh /data/data/com.termux/files/home/setup_build.sh"
             
       - name: Get Build Results
         run: |

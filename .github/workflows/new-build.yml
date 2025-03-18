@@ -34,7 +34,7 @@ jobs:
             # Install Termux
             adb install termux.apk
             # Launch Termux and wait
-            adb shell am start -n com.termux/.HomeActivity
+            adb shell am start -n com.termux/.TermuxActivity
             sleep 10  # Increased wait for bootstrap dialog
             # Simulate tapping "Allow" for storage permissions
             adb shell input tap 540 1700  

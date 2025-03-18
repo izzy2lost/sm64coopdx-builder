@@ -4,7 +4,7 @@
 if [ ! -f "$PREFIX/bin/sh" ]; then
     echo "Installing Termux bootstrap..."
     ARCH=$(dpkg --print-architecture)
-    BOOTSTRAP_URL="https://github.com/termux/termux-packages/raw/master/bootstrap-${ARCH}.zip"
+    BOOTSTRAP_URL="https://github.com/termux/termux-packages/releases/download/bootstrap-2025.03.16-r1%2Bapt-android-7/bootstrap-${ARCH}.zip"
     
     # Download the bootstrap
     wget "$BOOTSTRAP_URL" -O bootstrap.zip

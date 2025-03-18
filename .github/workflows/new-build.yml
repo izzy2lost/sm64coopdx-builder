@@ -77,7 +77,7 @@ jobs:
 
             # Restart Termux to apply changes
             adb shell am force-stop com.termux
-            adb shell am start -n com.termux/.TermuxActivity
+            adb shell am start -n com.termux/.HomeActivity
             sleep 5  # Wait for restart
 
             # Run setup script

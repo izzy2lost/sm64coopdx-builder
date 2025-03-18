@@ -57,7 +57,7 @@ jobs:
             adb shell ls /data/data/com.termux/files/home/setup_build.sh && echo "setup_build.sh found" || echo "setup_build.sh NOT found!"
             sleep 2
             # Make sure setup_build.sh is executable and run it
-            adb shell "chmod +x /data/data/com.termux/files/home/setup_build.sh && /data/data/com.termux/files/home/setup_build.sh"
+            adb shell "/data/data/com.termux/files/home/setup_build.sh"
             
       - name: Get Build Results
         run: |

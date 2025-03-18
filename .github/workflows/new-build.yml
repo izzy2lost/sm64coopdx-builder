@@ -13,61 +13,83 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y adb
+
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
+
       - name: Download Termux APK
         run: wget https://f-droid.org/repo/com.termux_1020.apk -O termux.apk
 
       - name: Start Android Emulator, Install Termux, and Run Script
         uses: reactivecircus/android-emulator-runner@v2.33.0
         with:
-          api-level: 23  # Changed from 21 to 25 for better Termux support
+          api-level: 23  # Changed from 21 to 23 for better Termux support
           script: |
+            # Start ADB
             adb start-server
             adb devices
             
             # Disable screen timeout
             adb shell settings put system screen_off_timeout 2147483647
+
             # Install Termux
             adb install termux.apk
+
             # Launch Termux and wait
             adb shell am start -n com.termux/.TermuxActivity
             sleep 10  # Increased wait for bootstrap dialog
+
             # Simulate tapping "Allow" for storage permissions
             adb shell input tap 540 1700  
             sleep 2  
+
             # Run termux-setup-storage to create storage directories
             adb shell input text "termux-setup-storage"
             adb shell input keyevent 66
             sleep 10  
+
             # Simulate tapping "Allow" again if needed
             adb shell input tap 540 1700  
             sleep 2  
+
             # Verify storage permission is granted
             adb shell ls /storage/emulated/0 && echo "Storage access granted!" || echo "Storage access NOT granted!"
+
             # Push necessary files to Termux home directory
             adb push baserom.us.z64 /data/data/com.termux/files/home/baserom.us.z64
             adb push setup_build.sh /data/data/com.termux/files/home/setup_build.sh
-            sleep 2
+
+            # Push bootstrap installation script
+            adb push install_bootstrap.sh /data/data/com.termux/files/home/install_bootstrap.sh
+
             # Confirm files are present
             adb shell ls /data/data/com.termux/files/home/baserom.us.z64 && echo "baserom.us.z64 found" || echo "baserom.us.z64 NOT found!"
             adb shell ls /data/data/com.termux/files/home/setup_build.sh && echo "setup_build.sh found" || echo "setup_build.sh NOT found!"
+            adb shell ls /data/data/com.termux/files/home/install_bootstrap.sh && echo "install_bootstrap.sh found" || echo "install_bootstrap.sh NOT found!"
             sleep 2
-            adb shell "pkg update -y && pkg upgrade -y"
-            adb shell "pkg install -y"
-            # Run the dumb script
+
+            # Make bootstrap script executable and add it to .bashrc for auto-run
+            adb shell "chmod +x /data/data/com.termux/files/home/install_bootstrap.sh"
+            adb shell "echo 'sh ~/install_bootstrap.sh' >> ~/.bashrc"
+
+            # Restart Termux to apply changes
+            adb shell am force-stop com.termux
+            adb shell am start -n com.termux/.TermuxActivity
+            sleep 5  # Wait for restart
+
+            # Run setup script
             adb shell "chmod +x /data/data/com.termux/files/home/setup_build.sh"
             adb shell "sh /data/data/com.termux/files/home/setup_build.sh"
-            
+
       - name: Get Build Results
         run: |
           adb shell ls /data/data/com.termux/files/home/sm64coopdx/build/us_pc/ && echo "Build directory exists" || echo "Build directory NOT found!"
           adb shell ls /data/data/com.termux/files/home/sm64coopdx/build/us_pc/sm64coopdx.apk && echo "APK found!" || echo "APK NOT found!"
           adb pull /data/data/com.termux/files/home/sm64coopdx/build/us_pc/sm64coopdx.apk || echo "APK not found"
-          
+
       - name: Upload APK Artifact
         if: always()
         uses: actions/upload-artifact@v4

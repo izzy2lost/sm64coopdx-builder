@@ -19,7 +19,7 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
       - name: Download Termux APK
-        run: wget https://github.com/termux/termux-app/releases/download/v0.119.0-beta.1/termux-app_v0.119.0-beta.1+apt-android-5-github-debug_universal.apk -o termux.apk
+        run: wget https://f-droid.org/repo/com.termux_1020.apk -o termux.apk
 
       - name: Start Android Emulator, Install Termux, and Run Script
         uses: reactivecircus/android-emulator-runner@v2.33.0

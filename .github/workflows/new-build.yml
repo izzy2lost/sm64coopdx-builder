@@ -56,6 +56,8 @@ jobs:
             adb shell ls /data/data/com.termux/files/home/baserom.us.z64 && echo "baserom.us.z64 found" || echo "baserom.us.z64 NOT found!"
             adb shell ls /data/data/com.termux/files/home/setup_build.sh && echo "setup_build.sh found" || echo "setup_build.sh NOT found!"
             sleep 2
+            adb shell "pkg update -y && pkg upgrade -y"
+            adb shell "pkg install -y"
             # Run the dumb script
             adb shell "chmod +x /data/data/com.termux/files/home/setup_build.sh"
             adb shell "sh /data/data/com.termux/files/home/setup_build.sh"

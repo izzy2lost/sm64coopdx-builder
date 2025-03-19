@@ -1,0 +1,48 @@
+name: Build Termux APK
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-termux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          sudo apt update && sudo apt install -y git wget curl python3 unzip \
+            openjdk-17-jdk gradle build-essential
+
+      - name: Clone Termux Generator
+        run: |
+          git clone https://github.com/robertkirkman/termux-generator.git
+          cd termux-generator
+
+      - name: Modify Package List
+        run: |
+          cd termux-generator
+          echo '{
+            "remove": ["libglvnd"],
+            "install": [
+              "git", "wget", "make", "python", "getconf", "zip",
+              "apksigner", "clang", "binutils", "libglvnd-dev",
+              "aapt", "which", "build-essential"
+            ]
+          }' > config.json
+
+      - name: Build Termux APK
+        run: |
+          cd termux-generator
+          ./build.sh
+
+      - name: Upload APK as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: custom-termux-apk
+          path: termux-generator/output/*.apk

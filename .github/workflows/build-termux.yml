@@ -39,7 +39,7 @@ jobs:
       - name: Build Termux APK
         run: |
           cd termux-generator
-          ./build.sh
+          ./build-termux.sh
 
       - name: Upload APK as Artifact
         uses: actions/upload-artifact@v4

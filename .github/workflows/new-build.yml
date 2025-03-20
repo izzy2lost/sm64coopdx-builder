@@ -10,6 +10,9 @@ jobs:
       volumes:
         - ${{ github.workspace }}:/__e/node20  # Mounting the repo to Termux
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4  # Checkout the repository
+
       - name: Install Dependencies & Setup Termux
         run: |
           /entrypoint.sh pkg update -y
@@ -21,10 +24,10 @@ jobs:
           export PIP_CACHE_DIR=$HOME/.pip-cache
           mkdir -p $PIP_CACHE_DIR
 
-      - name: Checkout SM64CoopDX
+      - name: Clone SM64CoopDX repo
         run: git clone --recursive https://github.com/ManIsCat2/sm64coopdx.git
 
-      - name: Copy baserom.us.z64 to Termux
+      - name: Copy baserom.us.z64 to SM64CoopDX
         run: cp ${{ github.workspace }}/baserom.us.z64 sm64coopdx/baserom.us.z64
 
       - name: Build SM64CoopDX

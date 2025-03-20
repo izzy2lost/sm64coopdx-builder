@@ -9,25 +9,24 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Pull and Run Termux Docker
+      - name: Pull Termux Docker Image (ARM)
         run: |
-          # Pull the Termux Docker image
-          docker pull termux/termux-docker:latest
+          docker pull termux/termux-docker:arm
 
-          # Start a Termux container and install dependencies
-          docker run --rm -v $PWD:/data termux/termux-docker:latest sh -c "
-            # Fix shell issues
-            ln -s /bin/bash /bin/sh &&
-            export PATH=/data/data/com.termux/files/usr/bin:$PATH &&
-
+      - name: Run Termux Container and Build
+        run: |
+          docker run --rm -v $PWD:/data termux/termux-docker:arm sh -c "
+            # Ensure shell exists
+            which sh || exit 1
+            
             # Update and install required packages
             apt update && apt upgrade -y &&
             apt install -y git wget make python zip clang binutils aapt which build-essential &&
-
-            # Copy necessary files into Termux home directory
+            
+            # Copy necessary files
             cp /data/baserom.us.z64 /data/setup_build.sh /data/data/com.termux/files/home/ &&
             
-            # Make build script executable and run it
+            # Run build script
             chmod +x /data/data/com.termux/files/home/setup_build.sh &&
             cd /data/data/com.termux/files/home &&
             ./setup_build.sh

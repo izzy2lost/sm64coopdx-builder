@@ -8,10 +8,12 @@ jobs:
     container:
       image: termux/termux-docker:x86_64
       volumes:
-        - ${{ github.workspace }}:/__e/node20  # Mounting the repo to Termux
+        - ${{ github.workspace }}:/__e/node20
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4  # Checkout the repository
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          path: /__e/node20
 
       - name: Install Dependencies & Setup Termux
         run: |
@@ -20,21 +22,17 @@ jobs:
           /entrypoint.sh pkg install -y git wget make python getconf zip \
                                       apksigner clang binutils libglvnd-dev aapt which
 
-          # Fix pip cache permission issue
-          export PIP_CACHE_DIR=$HOME/.pip-cache
-          mkdir -p $PIP_CACHE_DIR
-
-      - name: Clone SM64CoopDX repo
+      - name: Checkout SM64CoopDX
         run: git clone --recursive https://github.com/ManIsCat2/sm64coopdx.git
 
-      - name: Copy baserom.us.z64 to SM64CoopDX
-        run: cp ${{ github.workspace }}/baserom.us.z64 sm64coopdx/baserom.us.z64
+      - name: Copy baserom.us.z64
+        run: cp /__e/node20/baserom.us.z64 sm64coopdx/baserom.us.z64
 
       - name: Build SM64CoopDX
         run: |
           cd sm64coopdx
           make -j$(nproc)
-
+          
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         if: always()

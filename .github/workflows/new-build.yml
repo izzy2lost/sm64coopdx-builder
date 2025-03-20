@@ -7,39 +7,35 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: termux/termux-docker:x86_64
-      user: termux
       volumes:
         - ${{ github.workspace }}:/home/termux/work
-    defaults:
-      run:
-        working-directory: /home/termux
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          path: work
+          path: /home/termux/work
 
-      - name: Install Dependencies
+      - name: Setup Environment
         run: |
+          # Termux environment setup
+          echo "Updating packages..."
           pkg update -y
-          pkg remove -y libglvnd
-          pkg install -y git wget make python getconf zip \
-                         apksigner clang binutils libglvnd-dev aapt which
+          pkg install -y git make python clang binutils
 
-      - name: Clone SM64CoopDX
-        run: git clone --recursive https://github.com/ManIsCat2/sm64coopdx.git
-
-      - name: Copy baserom.us.z64
-        run: cp work/baserom.us.z64 sm64coopdx/baserom.us.z64
-
-      - name: Build SM64CoopDX
+      - name: Prepare SM64CoopDX
         run: |
-          cd sm64coopdx
+          cd /home/termux
+          git clone --recursive https://github.com/ManIsCat2/sm64coopdx.git
+          cp work/baserom.us.z64 sm64coopdx/baserom.us.z64
+
+      - name: Build ROM
+        run: |
+          cd /home/termux/sm64coopdx
           make -j$(nproc)
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: sm64coopdx-build
-          path: sm64coopdx/build
+          name: sm64-build
+          path: /home/termux/sm64coopdx/build

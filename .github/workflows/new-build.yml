@@ -1,41 +1,38 @@
-name: Termux SM64CoopDX Build
+name: SM64CoopDX Build
 
 on: [push, pull_request]
 
 jobs:
-  termux-build:
+  build:
     runs-on: ubuntu-latest
-    container:
-      image: termux/termux-docker:x86_64
-      volumes:
-        - ${{ github.workspace }}:/home/termux/work
+    container: termux/termux-docker:x86_64
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          path: /home/termux/work
-
-      - name: Setup Environment
+      - name: Prepare Environment
         run: |
-          # Termux environment setup
-          echo "Updating packages..."
+          # Install essential packages
           pkg update -y
-          pkg install -y git make python clang binutils
+          pkg install -y git make clang python zip
 
-      - name: Prepare SM64CoopDX
+      - name: Clone Your Repository
         run: |
-          cd /home/termux
+          git clone https://github.com/$GITHUB_REPOSITORY.git my-repo
+
+      - name: Clone SM64CoopDX
+        run: |
           git clone --recursive https://github.com/ManIsCat2/sm64coopdx.git
-          cp work/baserom.us.z64 sm64coopdx/baserom.us.z64
+
+      - name: Copy baserom
+        run: |
+          cp my-repo/baserom.us.z64 sm64coopdx/
 
       - name: Build ROM
         run: |
-          cd /home/termux/sm64coopdx
+          cd sm64coopdx
           make -j$(nproc)
 
-      - name: Upload Artifacts
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: sm64-build
-          path: /home/termux/sm64coopdx/build
+          path: sm64coopdx/build

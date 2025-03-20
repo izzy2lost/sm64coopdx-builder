@@ -8,34 +8,34 @@ jobs:
     container:
       image: termux/termux-docker:x86_64
       volumes:
-        - ${{ github.workspace }}:/__e/node20
+        - ${{ github.workspace }}:/home/work
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          path: /__e/node20
-
-      - name: Install Dependencies & Setup Termux
+      - name: Install Dependencies
         run: |
-          /entrypoint.sh pkg update -y
-          /entrypoint.sh pkg remove -y libglvnd
-          /entrypoint.sh pkg install -y git wget make python getconf zip \
-                                      apksigner clang binutils libglvnd-dev aapt which
+          pkg update -y
+          pkg remove -y libglvnd
+          pkg install -y git wget make python getconf zip \
+                         apksigner clang binutils libglvnd-dev aapt which nodejs
+
+      - name: Checkout Repository
+        run: |
+          git config --global --add safe.directory /home/work
+          cp -r /home/work/.git ./
+          git reset --hard
 
       - name: Checkout SM64CoopDX
         run: git clone --recursive https://github.com/ManIsCat2/sm64coopdx.git
 
       - name: Copy baserom.us.z64
-        run: cp /__e/node20/baserom.us.z64 sm64coopdx/baserom.us.z64
+        run: cp baserom.us.z64 sm64coopdx/baserom.us.z64
 
       - name: Build SM64CoopDX
         run: |
           cd sm64coopdx
           make -j$(nproc)
-          
+
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
-        if: always()
         with:
           name: sm64coopdx-build
           path: sm64coopdx/build

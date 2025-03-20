@@ -13,6 +13,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y adb
+          
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -69,11 +70,13 @@ jobs:
             # Run setup script
             adb shell "chmod +x /data/data/com.termux/files/home/setup_build.sh"
             adb shell "sh /data/data/com.termux/files/home/setup_build.sh"
+            
       - name: Get Build Results
         run: |
           adb shell ls /data/data/com.termux/files/home/sm64coopdx/build/us_pc/ && echo "Build directory exists" || echo "Build directory NOT found!"
           adb shell ls /data/data/com.termux/files/home/sm64coopdx/build/us_pc/sm64coopdx.apk && echo "APK found!" || echo "APK NOT found!"
           adb pull /data/data/com.termux/files/home/sm64coopdx/build/us_pc/sm64coopdx.apk || echo "APK not found"
+          
       - name: Upload APK Artifact
         if: always()
         uses: actions/upload-artifact@v4

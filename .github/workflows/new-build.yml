@@ -6,16 +6,28 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Pull and Run Termux Docker
         run: |
+          # Pull the Termux Docker image
           docker pull termux/termux-docker:latest
+
+          # Start a Termux container and install dependencies
           docker run --rm -v $PWD:/data termux/termux-docker:latest sh -c "
+            # Fix shell issues
+            ln -s /bin/bash /bin/sh &&
+            export PATH=/data/data/com.termux/files/usr/bin:$PATH &&
+
+            # Update and install required packages
             apt update && apt upgrade -y &&
-            apt install -y git wget make python zip clang binutils &&
+            apt install -y git wget make python zip clang binutils aapt which build-essential &&
+
+            # Copy necessary files into Termux home directory
             cp /data/baserom.us.z64 /data/setup_build.sh /data/data/com.termux/files/home/ &&
+            
+            # Make build script executable and run it
             chmod +x /data/data/com.termux/files/home/setup_build.sh &&
             cd /data/data/com.termux/files/home &&
             ./setup_build.sh

@@ -11,7 +11,7 @@ jobs:
 
       - name: Pull Termux Docker Image (ARM)
         run: |
-          docker pull termux/termux-docker:arm
+          docker run -it termux/termux-docker:arm
 
       - name: Run Termux Container and Build
         run: |

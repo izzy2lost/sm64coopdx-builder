@@ -10,39 +10,33 @@ jobs:
       volumes:
         - ${{ github.workspace }}:/home/termux/work
     steps:
-      - name: Prepare Environment
-        run: |
-          # Switch to termux user and home directory
-          cd /home/termux
-          sudo -u termux mkdir -p work
-
       - name: Install Dependencies
         run: |
-          sudo -u termux pkg update -y
-          sudo -u termux pkg remove -y libglvnd
-          sudo -u termux pkg install -y git wget make python getconf zip \
-                                       apksigner clang binutils libglvnd-dev aapt which nodejs
+          pkg update -y
+          pkg remove -y libglvnd
+          pkg install -y git wget make python getconf zip \
+                         apksigner clang binutils libglvnd-dev aapt which nodejs
 
       - name: Checkout Repository
         run: |
           cd /home/termux/work
-          sudo -u termux git config --global --add safe.directory /home/termux/work
-          sudo -u termux git clone $GITHUB_SERVER_URL/$GITHUB_REPOSITORY .
-          sudo -u termux git reset --hard $GITHUB_SHA
+          git config --global --add safe.directory /home/termux/work
+          git fetch origin $GITHUB_REF
+          git checkout -qf $GITHUB_SHA
 
       - name: Checkout SM64CoopDX
         run: |
           cd /home/termux
-          sudo -u termux git clone --recursive https://github.com/ManIsCat2/sm64coopdx.git
+          git clone --recursive https://github.com/ManIsCat2/sm64coopdx.git
 
       - name: Copy baserom.us.z64
         run: |
-          sudo -u termux cp /home/termux/work/baserom.us.z64 /home/termux/sm64coopdx/baserom.us.z64
+          cp /home/termux/work/baserom.us.z64 /home/termux/sm64coopdx/baserom.us.z64
 
       - name: Build SM64CoopDX
         run: |
           cd /home/termux/sm64coopdx
-          sudo -u termux make -j$(nproc)
+          make -j$(nproc)
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4

@@ -1,9 +1,7 @@
 name: Build Termux with Preinstalled Bootstraps
 
 on:
-  push:
-    tags:
-      - 'v0.119.0-beta.1'
+  workflow_dispatch:
 
 jobs:
   build:

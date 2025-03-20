@@ -1,45 +1,65 @@
-name: Build Termux APK
+name: Build Termux with Preinstalled Bootstraps
 
 on:
-  workflow_dispatch:
+  push:
+    tags:
+      - 'v0.119.0-beta.1'
 
 jobs:
-  build-termux:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Install Dependencies
+      - name: Clone Termux repository
         run: |
-          sudo apt update && sudo apt install -y git wget curl python3 unzip \
-            openjdk-17-jdk gradle build-essential
+          git clone https://github.com/termux/termux-app.git
+          cd termux-app
+          git checkout v0.119.0-beta.1  # Checkout the specific tag
 
-      - name: Clone Termux Generator
-        run: |
-          git clone https://github.com/robertkirkman/termux-generator.git
-          cd termux-generator
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'  # Ensure compatibility with Termux
 
-      - name: Modify Package List
+      - name: Set up Android SDK
+        uses: actions/setup-android@v2
+        with:
+          sdk-version: '30.0.3'  # Adjust SDK version
+          ndk-version: '21.3.6528147'
+
+      - name: Install dependencies
         run: |
-          cd termux-generator
-          echo '{
-            "remove": ["libglvnd"],
-            "install": [
-              "git", "wget", "make", "python", "getconf", "zip",
-              "apksigner", "clang", "binutils", "libglvnd-dev",
-              "aapt", "which", "build-essential"
-            ]
-          }' > config.json
+          sudo apt-get update
+          sudo apt-get install -y \
+            openjdk-11-jdk \
+            git \
+            python3 \
+            wget \
+            unzip \
+            curl
+
+      - name: Generate script to install standard bootstraps
+        run: |
+          # Create script to install the default bootstrap
+          echo "Creating bootstrap installation script..."
+          echo '#!/data/data/com.termux/files/usr/bin/bash' > termux-init.sh
+          echo 'apt update' >> termux-init.sh
+          echo 'apt install -y termux-tools' >> termux-init.sh
+          echo 'apt install -y python wget git make build-essential' >> termux-init.sh
+          echo 'apt clean' >> termux-init.sh
+          chmod +x termux-init.sh
+          
+          # Place the script in the appropriate directory to run on boot
+          mkdir -p /data/data/com.termux/files/usr/etc/init.d/
+          mv termux-init.sh /data/data/com.termux/files/usr/etc/init.d/
 
       - name: Build Termux APK
         run: |
-          cd termux-generator
-          ./build-termux.sh
+          cd termux-app
+          ./gradlew build
 
-      - name: Upload APK as Artifact
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: custom-termux-apk
-          path: termux-generator/output/*.apk
+          name: termux-apk
+          path: termux-app/app/build/outputs/apk/debug/*.apk
